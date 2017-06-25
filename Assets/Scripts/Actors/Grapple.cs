@@ -34,7 +34,7 @@ public class Grapple : MonoBehaviour {
 	}
 
 	private void UpdateLineRenderer() {
-		if (grapple.gameObject.activeInHierarchy == false)
+		if (grapple == null || grapple.gameObject.activeInHierarchy == false)
 			return;
 
 		line.SetPosition(0, transform.position);

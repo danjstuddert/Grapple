@@ -12,7 +12,7 @@ public class Player : MonoBehaviour {
 
 	private Vector2 velocity;
 
-	void Start () {
+	public void Init () {
 		controller = GetComponent<Controller2D>();
 		controller.Init();
 
@@ -26,12 +26,18 @@ public class Player : MonoBehaviour {
 	}
 
 	private void UpdateInput() {
+		if (grapple == null)
+			return;
+
 		if (Input.GetMouseButtonDown(0)) {
 			grapple.FireGrapple();
 		}
 	}
 
 	private void UpdateController() {
+		if (controller == null)
+			return;
+
 		if (controller.collisions.above || controller.collisions.below)
 			velocity.y = 0;
 
