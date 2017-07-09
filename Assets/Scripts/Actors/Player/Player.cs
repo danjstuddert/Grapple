@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Controller2D))]
-[RequireComponent(typeof(Grapple))]
+[RequireComponent(typeof(GrappleController))]
 public class Player : MonoBehaviour {
 	public float gravity = -20;
 
 	private Controller2D controller;
-	private Grapple grapple;
+	private GrappleController grapple;
+	private Hook hook;
 
 	private Vector2 velocity;
 
@@ -16,8 +17,11 @@ public class Player : MonoBehaviour {
 		controller = GetComponent<Controller2D>();
 		controller.Init();
 
-		grapple = GetComponent<Grapple>();
-		grapple.Init();
+		hook = GetComponent<Hook>();
+		hook.Init();
+
+		//grapple = GetComponent<GrappleController>();
+		//grapple.Init();
 	}
 
 	void Update() {
@@ -41,7 +45,12 @@ public class Player : MonoBehaviour {
 		if (controller.collisions.above || controller.collisions.below)
 			velocity.y = 0;
 
-		velocity.y += gravity * Time.deltaTime;
-		controller.Move(velocity * Time.deltaTime);
+		//if (grapple.IsGrappling) {
+		//	velocity.y = 0f;
+		//}
+		//else {
+		//	velocity.y += gravity * Time.deltaTime;
+		//	controller.Move(velocity * Time.deltaTime);
+		//}
 	}
 }
