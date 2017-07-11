@@ -2,14 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum InputType { Down, Hold, Release }
+
 [RequireComponent(typeof(Controller2D))]
-[RequireComponent(typeof(GrappleController))]
+[RequireComponent(typeof(PlayerInput))]
 public class Player : MonoBehaviour {
 	public float gravity = -20;
 
 	private Controller2D controller;
-	private GrappleController grapple;
-	private Hook hook;
+	private Grab grab;
+	private PlayerInput input;
 
 	private Vector2 velocity;
 
@@ -17,25 +19,33 @@ public class Player : MonoBehaviour {
 		controller = GetComponent<Controller2D>();
 		controller.Init();
 
-		hook = GetComponent<Hook>();
-		hook.Init();
+		grab = GetComponent<Grab>();
+		grab.Init();
 
-		//grapple = GetComponent<GrappleController>();
-		//grapple.Init();
+		input = GetComponent<PlayerInput>();
+		input.Init();
 	}
 
 	void Update() {
-		UpdateInput();
 		UpdateController();
 	}
 
-	private void UpdateInput() {
-		if (grapple == null)
-			return;
-
-		if (Input.GetMouseButtonDown(0)) {
-			grapple.FireGrapple();
+	public void GrabInput(InputType type) {
+		switch (type) {
+			case InputType.Down:
+				grab.StartGrab();
+				break;
+			case InputType.Hold:
+				grab.UpdateGrab();
+				break;
+			case InputType.Release:
+				grab.EndGrab();
+				break;
 		}
+	}
+
+	public void PushInput(InputType type) {
+
 	}
 
 	private void UpdateController() {
@@ -44,13 +54,5 @@ public class Player : MonoBehaviour {
 
 		if (controller.collisions.above || controller.collisions.below)
 			velocity.y = 0;
-
-		//if (grapple.IsGrappling) {
-		//	velocity.y = 0f;
-		//}
-		//else {
-		//	velocity.y += gravity * Time.deltaTime;
-		//	controller.Move(velocity * Time.deltaTime);
-		//}
 	}
 }
