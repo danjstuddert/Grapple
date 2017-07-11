@@ -6,6 +6,6 @@ public class GameController : Singleton<GameController> {
 
 	void Start () {
 		GameObject.FindWithTag("Player").GetComponent<Player>().Init();
-		Camera.main.GetComponent<CameraFollow>().Init();
+		Camera.main.GetComponent<CameraController>().Init();
 	}
 }
