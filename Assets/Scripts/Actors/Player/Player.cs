@@ -2,57 +2,87 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum InputType { Down, Hold, Release }
-
-[RequireComponent(typeof(Controller2D))]
 [RequireComponent(typeof(PlayerInput))]
 public class Player : MonoBehaviour {
-	public float gravity = -20;
-
-	private Controller2D controller;
-	private Grab grab;
+	private Pull pull;
+	private Push push;
 	private PlayerInput input;
-
+	private LineController lineRenderer;
+	private DistanceJointController jointController;
 	private Vector2 velocity;
 
 	public void Init () {
-		controller = GetComponent<Controller2D>();
-		controller.Init();
+		jointController = GetComponent<DistanceJointController>();
+		jointController.Init();
 
-		grab = GetComponent<Grab>();
-		grab.Init();
+		pull = GetComponent<Pull>();
+		pull.Init(jointController);
+
+		push = GetComponent<Push>();
+		push.Init(this, jointController);
 
 		input = GetComponent<PlayerInput>();
 		input.Init();
+
+		lineRenderer = GetComponent<LineController>();
+		lineRenderer.Init();
 	}
 
-	void Update() {
-		UpdateController();
-	}
-
-	public void GrabInput(InputType type) {
+	public void PullInput(InputType type) {
 		switch (type) {
 			case InputType.Down:
-				grab.StartGrab();
+				pull.StartPull();
+
+				if (pull.HasTarget) {
+					lineRenderer.ActivateLine();
+					lineRenderer.UpdateLine(transform.position, jointController.GetGrapplePoint());
+				}
+
 				break;
 			case InputType.Hold:
-				grab.UpdateGrab();
+				pull.UpdatePull();
+
+				if (pull.HasTarget)
+					lineRenderer.UpdateLine(transform.position, jointController.GetGrapplePoint());
+				else
+					lineRenderer.DeactivateLine();
+
 				break;
 			case InputType.Release:
-				grab.EndGrab();
+				pull.EndPull();
+				lineRenderer.DeactivateLine();
 				break;
 		}
 	}
 
 	public void PushInput(InputType type) {
+		switch (type) {
+			case InputType.Down:
+				push.StartPush();
 
+				if (push.HasTarget) {
+					lineRenderer.ActivateLine();
+					lineRenderer.UpdateLine(transform.position, jointController.GetGrapplePoint());
+				}
+
+				break;
+			case InputType.Hold:
+				push.UpdatePush();
+
+				if (push.HasTarget)
+					lineRenderer.UpdateLine(transform.position, jointController.GetGrapplePoint());
+				else
+					lineRenderer.DeactivateLine();
+
+				break;
+			case InputType.Release:
+				push.EndPush();
+				lineRenderer.DeactivateLine();
+				break;
+		}
 	}
 
-	private void UpdateController() {
-		if (controller == null)
-			return;
-
-		if (controller.collisions.above || controller.collisions.below)
-			velocity.y = 0;
+	public void DeactivateLineRenderer() {
+		lineRenderer.DeactivateLine();
 	}
 }

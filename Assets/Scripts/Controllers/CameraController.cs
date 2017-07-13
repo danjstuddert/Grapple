@@ -9,7 +9,8 @@ public class CameraController : MonoBehaviour {
 	public float lookSmoothTimeX;
 	public float verticalSmoothTime;
 
-	private Controller2D target;
+	private Collider2D targetCollider;
+	private Rigidbody2D targetRigidBody;
 	private FocusArea focusArea;
 
 	private float currentLookAheadX;
@@ -63,18 +64,19 @@ public class CameraController : MonoBehaviour {
 	}
 
 	public void Init() {
-		target = GameObject.FindWithTag("Player").GetComponent<Controller2D>();
-		focusArea = new FocusArea(target.GetComponent<Collider2D>().bounds, focusAreaSize);
+		targetCollider = GameObject.FindWithTag("Player").GetComponent<Collider2D>();
+		targetRigidBody = targetCollider.GetComponent<Rigidbody2D>();
+		focusArea = new FocusArea(targetCollider.GetComponent<Collider2D>().bounds, focusAreaSize);
 	}
 
 	void LateUpdate() {
-		focusArea.Update(target.GetComponent<Collider2D>().bounds);
+		focusArea.Update(targetCollider.bounds);
 
 		Vector2 focusPosition = focusArea.centre + Vector2.up * verticalOffset;
 
 		if(focusArea.velocity.x != 0) {
 			lookAheadDirX = Mathf.Sign(focusArea.velocity.x);
-			if(Mathf.Sign(target.GetComponent<Rigidbody2D>().velocity.x) == Mathf.Sign(focusArea.velocity.x) && target.GetComponent<Rigidbody2D>().velocity.x != 0) {
+			if(Mathf.Sign(targetRigidBody.velocity.x) == Mathf.Sign(focusArea.velocity.x) && targetRigidBody.velocity.x != 0) {
 				lookAheadStopped = false;
 				targetLookAheadX = lookAheadDirX * lookAheadDistanceX;
 			}
